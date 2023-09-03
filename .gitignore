@@ -1,4 +1,4 @@
 node_modules
-public/storage
 package-lock.json
+public/storage
 .env

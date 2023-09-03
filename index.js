@@ -15,6 +15,10 @@ dotenv.config();
 const PORT = process.env.PORT;
 const app = express();
 
+
+if (!fs.existsSync('public/storage')) {
+    fs.mkdirSync("public/storage")
+}
 if (!fs.existsSync('public/storage/users')) {
     fs.mkdirSync("public/storage/users")
 }
