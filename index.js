@@ -9,6 +9,7 @@ import os from 'os';
 import postRouter from "./routes/api/postRouter.js";
 import methodOverride from "method-override";
 import fs from "fs";
+import cors from "cors"
 dotenv.config();
 
 
@@ -37,6 +38,18 @@ app.use(fileUpload({
     parseNested: true
 }))
 
+app.use(cors())
+app.all('/*', function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
+
+app.all('/*', function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
 app.use(methodOverride('_method'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
