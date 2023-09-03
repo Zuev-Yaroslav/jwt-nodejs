@@ -38,18 +38,19 @@ app.use(fileUpload({
     parseNested: true
 }))
 
-app.use(cors())
-app.all('/*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-});
+// app.use(cors())
+// app.all('/*', function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//     next();
+// });
 
-app.all('/*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-});
+// app.all('/*', function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//     next();
+// });
+
 app.use(methodOverride('_method'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -79,6 +80,7 @@ app.use("/api/posts", postRouter)
 const start = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URL)
+        const roles = 
         app.listen(PORT, () => console.log(`PORT: ${PORT}`))
     } catch (e) {
         console.log(e);
