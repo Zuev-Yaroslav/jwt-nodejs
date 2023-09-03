@@ -80,7 +80,6 @@ app.use("/api/posts", postRouter)
 const start = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URL)
-        const roles = 
         app.listen(PORT, () => console.log(`PORT: ${PORT}`))
     } catch (e) {
         console.log(e);

@@ -12,7 +12,7 @@ class postController {
         try {
             var posts = await Post.aggregate([
                 { $lookup: { from: "users", localField: "userId", foreignField: "_id", as: "user" } },
-                { $project: { "user.password": 0 } }, { $limit: 1 }
+                { $project: { "user.password": 0 } }
             ])
             return res.json(posts)
         } catch (e) {
