@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { url } from "inspector";
 import { randomInt } from "crypto";
+import userResource from "../../apiResources/userResource.js";
 
 const generateAccessToken = (id, roles) => {
     const payload = {
@@ -83,12 +84,12 @@ class authController {
             user.image = `${req.protocol}://${req.get('host')}/${user.image}`
         }
 
-        res.json(user)
+        res.json(userResource.make(user))
     }
     async getUsers(req, res) {
         try {
             const users = await User.find();
-            res.json(users)
+            res.json(userResource.collection(users))
         } catch (e) {
             console.log(e)
             res.json(e)

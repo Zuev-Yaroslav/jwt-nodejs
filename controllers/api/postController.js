@@ -6,6 +6,7 @@ import path from "path"
 import storeValidation from "../../validations/post/storeValidation.js"
 import updateValidation from "../../validations/post/updateValidation.js"
 import mongoose from "mongoose"
+import postResource from "../../apiResources/postResource.js"
 
 class postController {
     async index(req, res) {
@@ -14,7 +15,7 @@ class postController {
                 { $lookup: { from: "users", localField: "userId", foreignField: "_id", as: "user" } },
                 { $project: { "user.password": 0 } }
             ])
-            return res.json(posts)
+            return res.json(postResource.collection(posts))
         } catch (e) {
             console.log(e);
             return res.status(400).json({ message: "Post index error",  errors: e })
@@ -31,7 +32,7 @@ class postController {
             if (!post[0]) {
                 return res.status(404).json({ message: "Not found" })
             }
-            return res.json(post[0])
+            return res.json(postResource.make(post[0]))
         } catch (e) {
             console.log(e);
             return res.status(400).json({ message: "Post show error",  errors: e })
