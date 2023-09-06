@@ -7,16 +7,22 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import { url } from "inspector";
 import { randomInt } from "crypto";
 import userResource from "../../apiResources/userResource.js";
+import AccessToken from "../../models/AccessToken.js";
+import RefreshToken from "../../models/RefreshToken.js";
 
-const generateAccessToken = (id, roles) => {
+const generateAccessToken = (id) => {
     const payload = {
         id,
-        roles
     }
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" })
+    return jwt.sign(payload, process.env.JWT_ACCESS, { expiresIn: "24h" })
+}
+const generateRefreshToken = (id) => {
+    const payload = {
+        id,
+    }
+    return jwt.sign(payload, process.env.JWT_REFRESH, { expiresIn: "7d" })
 }
 
 class authController {
@@ -42,14 +48,20 @@ class authController {
             if (emailExists) {
                 return res.status(400).json({ message: 'User with the same email already exists' })
             }
-            
+
             const imagePath = `storage/users/images/${Date.now()}${randomInt(1000)}${path.extname(image.name)}`
             await image.mv('public/' + imagePath)
             const hashPassword = bcrypt.hashSync(password, 7)
             const userRole = await Role.findOne({ value: 'user' })
             const user = new User({ username, email, password: hashPassword, roles: [userRole.value], image: imagePath })
             await user.save()
-            return res.json({ message: "User successfully registered." })
+
+            const accessToken = generateAccessToken(user._id)
+            const refreshToken = generateRefreshToken(user._id)
+            AccessToken.insertMany([{accessToken}])
+            RefreshToken.insertMany([{refreshToken}])
+
+            return res.json({ message: "User successfully registered.", accessToken, refreshToken })
         } catch (e) {
             console.log(e);
             return res.status(400).json({ message: "Registration error" })
@@ -68,8 +80,11 @@ class authController {
             if (user) {
                 const validPassword = bcrypt.compareSync(password, user.password)
                 if (validPassword) {
-                    const token = generateAccessToken(user._id, user.roles)
-                    return res.json({ token });
+                    const accessToken = generateAccessToken(user._id)
+                    const refreshToken = generateRefreshToken(user._id)
+                    AccessToken.insertMany([{accessToken}])
+                    RefreshToken.insertMany([{refreshToken}])
+                    return res.json({ accessToken, refreshToken });
                 }
             }
             return res.status(403).json({ message: "Username or password is incorrect" })
@@ -78,8 +93,20 @@ class authController {
             res.status(400).json({ message: "Login error" })
         }
     }
+    async refresh(req, res) {
+        try {
+            const refreshToken = generateRefreshToken(req.user.id)
+            const accessToken = generateAccessToken(req.user.id)
+            AccessToken.insertMany([{accessToken}])
+            RefreshToken.insertMany([{refreshToken}])
+            return res.json({accessToken, refreshToken})
+        } catch (e) {
+            console.log(e);
+            res.status(400).json({ message: "Refresh error" })
+        }
+    }
     async me(req, res) {
-        var user = await User.findById(req.user.id, {password: 0})
+        var user = await User.findById(req.user.id, { password: 0 })
         if (user) {
             user.image = `${req.protocol}://${req.get('host')}/${user.image}`
         }

@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import User from "../models/User.js";
 dotenv.config()
 
 export default (roles) => {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         if (req.method === "OPTIONS") {
             next()
         }
@@ -12,9 +13,10 @@ export default (roles) => {
             if (!token) {
                 return res.status(403).json({message: "Unauthorized"})
             }
-            const {roles: userRoles} = jwt.verify(token, process.env.JWT_SECRET)
+            const {id} = jwt.verify(token, process.env.JWT_SECRET)
+            const user = await User.findById(id);
             let hasRole = false
-            userRoles.forEach(role => {
+            user.roles.forEach(role => {
                 if (roles.includes(role)) {
                     hasRole = true
                 }
