@@ -9,7 +9,7 @@ export default async (req, res, next) => {
         next()
     }
     try {
-        const {refreshToken} = req.body
+        const refreshToken = req.headers.authorization.split(' ')[1]
         if (!refreshToken) {
             return res.status(403).json({message: "Unauthorized"})
         }
