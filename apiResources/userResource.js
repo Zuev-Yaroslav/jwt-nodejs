@@ -5,7 +5,7 @@ class UserResource {
             const {_id, username, email, roles, image, createdAt} = value
             newArray[index] = {
                 id: _id,
-                username, email, password, roles, image, createdAt
+                username, email, roles, image, createdAt
             }
         });
         return newArray;
@@ -14,7 +14,7 @@ class UserResource {
         const {_id, username, email, roles, image, createdAt} = object
         return {
             id: _id,
-            username, email, password, roles, image, createdAt
+            username, email, roles, image, createdAt
         }
     }
 }
