@@ -115,7 +115,7 @@ class authController {
     }
     async getUsers(req, res) {
         try {
-            const users = await User.find({password: 0});
+            const users = await User.find();
             res.json(userResource.collection(users))
         } catch (e) {
             console.log(e)

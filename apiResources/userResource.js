@@ -2,7 +2,7 @@ class UserResource {
     collection(collection) {
         var newArray = []
         collection.forEach((value, index) => {
-            const {_id, username, email, password, roles, image, createdAt} = value
+            const {_id, username, email, roles, image, createdAt} = value
             newArray[index] = {
                 id: _id,
                 username, email, password, roles, image, createdAt
@@ -11,7 +11,7 @@ class UserResource {
         return newArray;
     }
     make(object) {
-        const {_id, username, email, password, roles, image, createdAt} = object
+        const {_id, username, email, roles, image, createdAt} = object
         return {
             id: _id,
             username, email, password, roles, image, createdAt
