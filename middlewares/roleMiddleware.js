@@ -13,7 +13,7 @@ export default (roles) => {
             if (!token) {
                 return res.status(403).json({message: "Unauthorized"})
             }
-            const {id} = jwt.verify(token, process.env.JWT_SECRET)
+            const {id} = jwt.verify(token, process.env.JWT_ACCESS)
             const user = await User.findById(id);
             let hasRole = false
             user.roles.forEach(role => {
