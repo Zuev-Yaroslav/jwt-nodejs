@@ -43,7 +43,7 @@ class authController {
             const user = new User({ username, email, password: hashPassword, roles: [userRole.value], image: imagePath })
             await user.save()
 
-            const tokens = tokenService.generateTokens({id: user._id})
+            const tokens = tokenService.generateTokens({ id: user._id })
             await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
 
 
@@ -66,7 +66,7 @@ class authController {
             if (user) {
                 const validPassword = bcrypt.compareSync(password, user.password)
                 if (validPassword) {
-                    const tokens = tokenService.generateTokens({id: user._id})
+                    const tokens = tokenService.generateTokens({ id: user._id })
                     await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
                     return res.json({ ...tokens })
                 }
@@ -79,29 +79,43 @@ class authController {
     }
     async refresh(req, res) {
         try {
-            const refreshToken = req.headers.authorization.split(' ')[1]
+            const refreshToken = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : null
             if (!refreshToken) {
-                return res.status(403).json({message: "Unauthorized"})
+                return res.status(403).json({ message: "Unauthorized" })
             }
-            const token = await RefreshToken.findOne({refreshToken})
-    
+            const token = await RefreshToken.findOne({ refreshToken })
+
             if (!token) {
-                return res.status(403).json({message: "Unauthorized"})
+                return res.status(403).json({ message: "Unauthorized" })
             }
             const decodedData = jwt.verify(refreshToken, process.env.JWT_REFRESH)
             const user = await User.findById(decodedData.id)
-            
-    
+
+
             if (!user) {
-                return res.status(403).json({message: "Unauthorized"})
+                return res.status(403).json({ message: "Unauthorized" })
             }
-            const tokens = tokenService.generateTokens({id: user._id})
+            const tokens = tokenService.generateTokens({ id: user._id })
             await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
-            
+
             return res.json({ ...tokens })
         } catch (e) {
             console.log(e);
             res.status(400).json({ message: "Refresh error", errors: e })
+        }
+    }
+    async logout(req, res) {
+        try {
+           const refreshToken = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : null
+            if (!refreshToken) {
+                return res.status(403).json({ message: "Unauthorized" })
+            }
+            jwt.verify(refreshToken, process.env.JWT_REFRESH)
+            tokenService.removeRefreshToken(refreshToken)
+            return res.json([])
+        } catch (e) {
+            console.log(e);
+            res.status(400).json({ message: "Logout error", errors: e })
         }
     }
     async me(req, res) {

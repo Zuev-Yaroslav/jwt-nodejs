@@ -10,5 +10,6 @@ authRouter.post('/login', authController.login);
 authRouter.get('/users',authMiddleware, roleMiddleware(['admin']), authController.getUsers);
 authRouter.get('/me', authMiddleware, authController.me);
 authRouter.get('/refresh', authController.refresh);
+authRouter.get('/logout', authController.logout);
  
 export default authRouter;
