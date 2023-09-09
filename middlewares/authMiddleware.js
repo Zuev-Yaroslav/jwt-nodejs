@@ -8,7 +8,7 @@ const authMiddleware = async (req, res, next) => {
         next()
     }
     try {
-        const accessToken = req.headers.authorization.split(' ')[1]
+        const accessToken = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : null
         if (!accessToken) {
             return res.status(403).json({message: "Unauthorized"})
         }

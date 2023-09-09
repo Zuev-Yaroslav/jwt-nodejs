@@ -11,7 +11,7 @@ const storeValidation = ({ title, text, images }) => {
         validErrors.text = "Text is required";
     }
     if (!Array.isArray(images)) {
-        validErrors.images = "Images must be array";
+        validErrors.images = "Images must be array and files";
     } else {
         if (images.length > 10) {
             validErrors.images = "Images should be no more than 10";

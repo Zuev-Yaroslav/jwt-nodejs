@@ -11,7 +11,7 @@ const registerValidation = ({ username, email, password, password_confirm, image
         validErrors.email = "Email is required";
     } else {
         if (!validator.isEmail(email)) {
-            validErrors.email = "Need email";
+            validErrors.email = "Email must be email";
         }
     }
     if (!password) {

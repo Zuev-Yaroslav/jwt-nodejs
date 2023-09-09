@@ -9,21 +9,8 @@ import fs from "fs";
 import path from "path";
 import { randomInt } from "crypto";
 import userResource from "../../apiResources/userResource.js";
-import AccessToken from "../../models/AccessToken.js";
 import RefreshToken from "../../models/RefreshToken.js";
-
-const generateAccessToken = (id) => {
-    const payload = {
-        id,
-    }
-    return jwt.sign(payload, process.env.JWT_ACCESS, { expiresIn: "24h" })
-}
-const generateRefreshToken = (id) => {
-    const payload = {
-        id,
-    }
-    return jwt.sign(payload, process.env.JWT_REFRESH, { expiresIn: "7d" })
-}
+import tokenService from "../../services/tokenService.js";
 
 class authController {
     constructor() {
@@ -56,12 +43,11 @@ class authController {
             const user = new User({ username, email, password: hashPassword, roles: [userRole.value], image: imagePath })
             await user.save()
 
-            const accessToken = generateAccessToken(user._id)
-            const refreshToken = generateRefreshToken(user._id)
-            AccessToken.insertMany([{accessToken}])
-            RefreshToken.insertMany([{refreshToken}])
+            const tokens = tokenService.generateTokens({id: user._id})
+            await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
 
-            return res.json({ message: "User successfully registered.", accessToken, refreshToken })
+
+            return res.json({ ...tokens })
         } catch (e) {
             console.log(e);
             return res.status(400).json({ message: "Registration error" })
@@ -80,11 +66,9 @@ class authController {
             if (user) {
                 const validPassword = bcrypt.compareSync(password, user.password)
                 if (validPassword) {
-                    const accessToken = generateAccessToken(user._id)
-                    const refreshToken = generateRefreshToken(user._id)
-                    AccessToken.insertMany([{accessToken}])
-                    RefreshToken.insertMany([{refreshToken}])
-                    return res.json({ accessToken, refreshToken });
+                    const tokens = tokenService.generateTokens({id: user._id})
+                    await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
+                    return res.json({ ...tokens })
                 }
             }
             return res.status(403).json({ message: "Username or password is incorrect" })
@@ -95,14 +79,29 @@ class authController {
     }
     async refresh(req, res) {
         try {
-            const refreshToken = generateRefreshToken(req.user.id)
-            const accessToken = generateAccessToken(req.user.id)
-            AccessToken.insertMany([{accessToken}])
-            RefreshToken.insertMany([{refreshToken}])
-            return res.json({accessToken, refreshToken})
+            const refreshToken = req.headers.authorization.split(' ')[1]
+            if (!refreshToken) {
+                return res.status(403).json({message: "Unauthorized"})
+            }
+            const token = await RefreshToken.findOne({refreshToken})
+    
+            if (!token) {
+                return res.status(403).json({message: "Unauthorized"})
+            }
+            const decodedData = jwt.verify(refreshToken, process.env.JWT_REFRESH)
+            const user = await User.findById(decodedData.id)
+            
+    
+            if (!user) {
+                return res.status(403).json({message: "Unauthorized"})
+            }
+            const tokens = tokenService.generateTokens({id: user._id})
+            await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
+            
+            return res.json({ ...tokens })
         } catch (e) {
             console.log(e);
-            res.status(400).json({ message: "Refresh error" })
+            res.status(400).json({ message: "Refresh error", errors: e })
         }
     }
     async me(req, res) {

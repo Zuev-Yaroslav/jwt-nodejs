@@ -3,13 +3,11 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/api/authRouter.js";
 import bodyParser from 'body-parser';
-import formData from 'express-form-data';
 import fileUpload from "express-fileupload";
-import os from 'os';
 import postRouter from "./routes/api/postRouter.js";
 import methodOverride from "method-override";
 import fs from "fs";
-import cors from "cors"
+import jwt from "jsonwebtoken";
 dotenv.config();
 
 
@@ -35,21 +33,9 @@ if (!fs.existsSync("public/storage/posts/images")) {
 }
 
 app.use(fileUpload({
-    parseNested: true
+    parseNested: true,
+    useTempFiles : true
 }))
-
-// app.use(cors())
-// app.all('/*', function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//     next();
-// });
-
-// app.all('/*', function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//     next();
-// });
 
 app.use(methodOverride('_method'))
 app.use(bodyParser.json())
@@ -87,3 +73,5 @@ const start = async () => {
 }
 
 start()
+
+
