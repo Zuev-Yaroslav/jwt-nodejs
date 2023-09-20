@@ -6,6 +6,7 @@ const User = new Schema({
     password: {type: String, required: true},
     roles: [{type: String, ref: 'Role'}],
     image: {type: String, required:true},
+    emailVerifiedAt: {type: Date, required: false, default: null}
 }, {timestamps: true, versionKey: false})
 
 export default model('User', User)

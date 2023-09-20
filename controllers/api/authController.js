@@ -11,6 +11,9 @@ import { randomInt } from "crypto";
 import userResource from "../../apiResources/userResource.js";
 import RefreshToken from "../../models/RefreshToken.js";
 import tokenService from "../../services/tokenService.js";
+import Otp from "../../models/Otp.js";
+import mailService from "../../services/mailService.js";
+import resendVerifyValidation from "../../validations/user/resendVerifyValidation.js";
 
 class authController {
     constructor() {
@@ -50,7 +53,57 @@ class authController {
             return res.json({ ...tokens })
         } catch (e) {
             console.log(e);
-            return res.status(400).json({ message: "Registration error" })
+            return res.status(400).json({ message: "Registration error", errors: e })
+        }
+    }
+    async update(req, res) {
+        try {
+            
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ message: "Update user error", errors: e })
+        }
+    }
+    async resendVerify(req, res) {
+        try {
+            const { email } = req.user;
+            // const validErrors = resendVerifyValidation({email})
+            // if (Object.keys(validErrors).length !== 0) {
+            //     return res.status(400).json({ errors: validErrors })
+            // }
+            const otpCode = Math.floor(Math.random() * 900000) + 100000;
+            const otp = await Otp.findOneAndUpdate({ email: email }, { email: email, otp: otpCode })
+            if (!otp) {
+                const newOtp = new Otp({ email, otp: otpCode })
+                await newOtp.save()
+            }
+            mailService.sendActivation(email, otpCode)
+            return res.json([])
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ message: "Resend verify error", errors: e })
+        }
+    }
+    async emailVerify(req, res) {
+        try {
+            const { otpCode } = req.body;
+            const { email } = req.user;
+            const otp = await Otp.findOne({ email, otp: otpCode })
+            if (!otp) {
+                return res.status(400).json({ message: "Otp is incorrect" })
+            }
+            const now = new Date()
+            const createdAt = new Date(otp.updatedAt)
+
+            if (now.getTime() > createdAt.getTime() + 60 * 1000 * 5) {
+                return res.status(400).json({ message: "Otp is expired" })
+            }
+            await User.findOneAndUpdate({ email }, { emailVerifiedAt: new Date() })
+            return res.json({ message: "Email is verified" })
+
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ message: "Email verification error", errors: e })
         }
     }
     async login(req, res) {
@@ -81,19 +134,19 @@ class authController {
         try {
             const refreshToken = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : null
             if (!refreshToken) {
-                return res.status(403).json({ message: "Unauthorized" })
+                return res.status(403).json({ message: "Unauthorized", errors: {message: "The token is not found"} })
             }
             const token = await RefreshToken.findOne({ refreshToken })
 
             if (!token) {
-                return res.status(403).json({ message: "Unauthorized" })
+                return res.status(403).json({ message: "Unauthorized", errors: {message: "The token is expired"} })
             }
             const decodedData = jwt.verify(refreshToken, process.env.JWT_REFRESH)
             const user = await User.findById(decodedData.id)
 
 
             if (!user) {
-                return res.status(403).json({ message: "Unauthorized" })
+                return res.status(403).json({ message: "Unauthorized", errors: {message: "The user is not found"} })
             }
             const tokens = tokenService.generateTokens({ id: user._id })
             await tokenService.saveRefreshToken(user._id, tokens.refreshToken)
@@ -106,7 +159,7 @@ class authController {
     }
     async logout(req, res) {
         try {
-           const refreshToken = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : null
+            const refreshToken = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : null
             if (!refreshToken) {
                 return res.status(403).json({ message: "Unauthorized" })
             }
@@ -120,9 +173,9 @@ class authController {
     }
     async me(req, res) {
         var user = await User.findById(req.user.id, { password: 0 })
-        if (user) {
-            user.image = `${req.protocol}://${req.get('host')}/${user.image}`
-        }
+        // if (user) {
+        //     user.image = `${req.protocol}://${req.get('host')}/${user.image}`
+        // }
 
         res.json(userResource.make(user))
     }

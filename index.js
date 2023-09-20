@@ -62,7 +62,6 @@ app.use((req, res, next) => {
 })
 app.use("/api/auth", authRouter)
 app.use("/api/posts", postRouter)
-
 const start = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URL)
