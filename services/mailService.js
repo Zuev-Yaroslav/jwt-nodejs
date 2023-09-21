@@ -8,6 +8,7 @@ class MailService {
         if(process.env.NODE_ENV === "production"){
             console.log('priduction');
             mailConfig = {
+                service: "Yandex",
                 host: process.env.SMTP_HOST,
                 port: process.env.SMTP_PORT,
                 secure: true,
