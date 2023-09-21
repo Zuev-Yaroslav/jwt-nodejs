@@ -8,15 +8,14 @@ class MailService {
         if(process.env.NODE_ENV === "production"){
             console.log('priduction');
             mailConfig = {
-                service: "Yandex",
                 host: process.env.SMTP_HOST,
                 port: process.env.SMTP_PORT,
                 secure: true,
-                tls: {
-                    servername: "purple-test.ru",
-                    rejectUnauthorized: true,
-                    minVersion: "TLSv1.2"
-                },
+                // tls: {
+                //     servername: "purple-test.ru",
+                //     rejectUnauthorized: true,
+                //     minVersion: "TLSv1.2"
+                // },
                 auth: {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASSWORD
