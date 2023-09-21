@@ -11,6 +11,7 @@ class MailService {
                 host: process.env.SMTP_HOST,
                 port: process.env.SMTP_PORT,
                 secure: true,
+                connectionTimeout: 1000*60*10,
                 // tls: {
                 //     servername: "purple-test.ru",
                 //     rejectUnauthorized: true,

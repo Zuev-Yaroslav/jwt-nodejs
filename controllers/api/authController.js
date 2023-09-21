@@ -77,7 +77,7 @@ class authController {
                 const newOtp = new Otp({ email, otp: otpCode })
                 await newOtp.save()
             }
-            await mailService.sendActivation(email, otpCode)
+            mailService.sendActivation(email, otpCode)
             return res.json([])
         } catch (e) {
             console.log(e);
