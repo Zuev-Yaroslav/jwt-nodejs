@@ -6,6 +6,7 @@ class MailService {
     constructor() {
         var mailConfig;
         if(process.env.NODE_ENV === 'production'){
+            console.log('priduction');
             mailConfig = {
                 host: process.env.SMTP_HOST,
                 port: process.env.SMTP_PORT,
