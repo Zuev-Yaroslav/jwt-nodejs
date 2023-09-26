@@ -17,6 +17,10 @@ class MailService {
                 //     rejectUnauthorized: true,
                 //     minVersion: "TLSv1.2"
                 // },
+                tls: {
+                    // do not fail on invalid certs
+                    rejectUnauthorized: false
+                },
                 auth: {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASSWORD
