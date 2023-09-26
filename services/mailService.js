@@ -42,6 +42,14 @@ class MailService {
             text: `Код активации: ${otp}`
         })
     }
+    async sendMail(to, message) {
+        await this.transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to,
+            subject: "Hello World",
+            text: message
+        })
+    }
 }
 
 export default new MailService()
