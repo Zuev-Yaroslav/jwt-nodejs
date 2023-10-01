@@ -15,6 +15,9 @@ const PORT = process.env.PORT;
 const app = express();
 
 
+if (!fs.existsSync('public')) {
+    fs.mkdirSync("public")
+}
 if (!fs.existsSync('public/storage')) {
     fs.mkdirSync("public/storage")
 }

@@ -58,7 +58,34 @@ class authController {
     }
     async update(req, res) {
         try {
-            
+            const {username, email } = req.body
+            const image = (req.files && req.files.image) ? req.files.image : null
+
+            if (username) {
+                const usernameExists = await User.findOne({username})
+                if (usernameExists) {
+                    return res.status(400).json({ message: 'User with the same name already exists' })
+                }
+            }
+            if (email) {
+                const emailExists = await User.findOne({ email })
+                if (emailExists) {
+                    return res.status(400).json({ message: 'User with the same email already exists' })
+                }
+                
+            }
+            var imagePath;
+            console.log(image);
+            if (image) {
+                imagePath = `storage/users/images/${Date.now()}${randomInt(1000)}${path.extname(image.name)}`
+                await image.mv('public/' + imagePath)
+            }
+            if (email) {
+                await User.findByIdAndUpdate(req.user.id, {username, email, image: imagePath, emailVerifiedAt: null})
+                return res.json({message: "Updated"})
+            }
+            await User.findByIdAndUpdate(req.user.id, {username, image: imagePath})
+            return res.json({message: "Updated"})
         } catch (e) {
             console.log(e);
             return res.status(400).json({ message: "Update user error", errors: e })

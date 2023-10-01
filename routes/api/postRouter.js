@@ -14,16 +14,16 @@ postRouter.post('/', authMiddleware, verifyMiddleware, postController.store)
 postRouter.patch('/:id', objectIdMiddleware, authMiddleware, verifyMiddleware, checkUserPostMIddleware, postController.update)
 postRouter.delete('/:id', objectIdMiddleware, authMiddleware, verifyMiddleware, checkUserPostMIddleware, postController.delete)
 postRouter.get('/:id', objectIdMiddleware, postController.show)
-postRouter.post('/send', (req, res) => {
-    try {
-        const {email, message} = req.body;
-        if (email && message) {
-            mailService.sendMail(email, message);
-        }
-        return res.json("send");
-    } catch(e) {
-        return res.status(400).json("error")
-    }
-})
+// postRouter.post('/send', (req, res) => {
+//     try {
+//         const {email, message} = req.body;
+//         if (email && message) {
+//             mailService.sendMail(email, message);
+//         }
+//         return res.json("send");
+//     } catch(e) {
+//         return res.status(400).json("error")
+//     }
+// })
  
 export default postRouter;

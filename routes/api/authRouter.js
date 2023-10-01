@@ -11,6 +11,7 @@ authRouter.post('/login', authController.login);
 authRouter.post('/resend-verify', authMiddleware, authController.resendVerify);
 authRouter.post('/verify', authMiddleware, authController.emailVerify);
 authRouter.get('/users', authMiddleware, verifyMiddleware, roleMiddleware(['admin']), authController.getUsers);
+authRouter.patch('/users/update', authMiddleware, authController.update);
 authRouter.get('/me', authMiddleware, authController.me);
 authRouter.get('/refresh', authController.refresh);
 authRouter.get('/logout', authController.logout);

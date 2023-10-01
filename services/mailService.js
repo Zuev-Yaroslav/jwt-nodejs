@@ -6,12 +6,11 @@ class MailService {
     constructor() {
         var mailConfig;
         if(process.env.NODE_ENV === "production"){
-            console.log('priduction');
+            console.log('production');
             mailConfig = {
                 host: process.env.SMTP_HOST,
                 port: process.env.SMTP_PORT,
                 secure: true,
-                connectionTimeout: 1000*60*10,
                 tls: {
                     // do not fail on invalid certs
                     rejectUnauthorized: false
@@ -23,12 +22,12 @@ class MailService {
             }
         } else {
             mailConfig = {
-                host: "smtp.ethereal.email",
-                port: 587,
+                host: process.env.DEV_SMTP_HOST,
+                port: process.env.DEV_SMTP_PORT,
                 secure: false,
                 auth: {
-                    user: "edmund.deckow37@ethereal.email",
-                    pass: "8B2mJqbB6t1TCNUxjg"
+                    user: process.env.DEV_SMTP_USER,
+                    pass: process.env.DEV_SMTP_PASSWORD
                 }
             }
         }
